@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  app:
+    image: php:8.2-apache
+    container_name: ci4_app
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      - CI_ENVIRONMENT=development
+    working_dir: /var/www/html
+    command: >
+      bash -c "docker-php-ext-install mysqli pdo pdo_mysql &&
+               apache2-foreground"
+
+  db:
+    image: mariadb:11.3
+    container_name: ci4_db
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpass
+      MARIADB_DATABASE: todos_db
+      MARIADB_USER: ciuser
+      MARIADB_PASSWORD: cipass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
